@@ -60,14 +60,19 @@ export const GET_RECOMMENDATIONS = gql`
       reminders
       dailyGoalMl
       sleepGoalHours
+      fitnessGoal
       ageRange {
         min
         max
       }
+      gender
+      healthConditions
       weightRange {
         min
         max
       }
+      preferredWorkoutTypes
+      dietaryRestrictions
       createdAt
       updatedAt
     }

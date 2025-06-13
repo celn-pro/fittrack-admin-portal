@@ -520,6 +520,7 @@ export type User = {
   isProfileComplete: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
   preferredWorkoutTypes?: Maybe<Array<Scalars['String']['output']>>;
+  role?: Maybe<Scalars['String']['output']>;
   token?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['String']['output'];
   weight?: Maybe<Scalars['Float']['output']>;
@@ -544,7 +545,7 @@ export type LoginUserMutation = { __typename?: 'Mutation', loginUser?: { __typen
 export type GetRecommendationsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetRecommendationsQuery = { __typename?: 'Query', getRecommendations: Array<{ __typename?: 'Recommendation', id: string, category: string, title: string, description: string, image?: string | null, tips?: Array<string | null> | null, calories?: number | null, reminders?: Array<string | null> | null, dailyGoalMl?: number | null, sleepGoalHours?: number | null, createdAt: string, updatedAt: string, steps?: Array<{ __typename?: 'Step', title: string, description: string, image?: string | null, duration?: number | null } | null> | null, articles?: Array<{ __typename?: 'Article', title: string, url: string } | null> | null, macros?: { __typename?: 'Macros', protein?: number | null, carbs?: number | null, fat?: number | null } | null, ageRange?: { __typename?: 'Range', min?: number | null, max?: number | null } | null, weightRange?: { __typename?: 'Range', min?: number | null, max?: number | null } | null }> };
+export type GetRecommendationsQuery = { __typename?: 'Query', getRecommendations: Array<{ __typename?: 'Recommendation', id: string, category: string, title: string, description: string, image?: string | null, tips?: Array<string | null> | null, calories?: number | null, reminders?: Array<string | null> | null, dailyGoalMl?: number | null, sleepGoalHours?: number | null, fitnessGoal?: string | null, gender?: string | null, healthConditions?: Array<string | null> | null, preferredWorkoutTypes?: Array<string | null> | null, dietaryRestrictions?: Array<string | null> | null, createdAt: string, updatedAt: string, steps?: Array<{ __typename?: 'Step', title: string, description: string, image?: string | null, duration?: number | null } | null> | null, articles?: Array<{ __typename?: 'Article', title: string, url: string } | null> | null, macros?: { __typename?: 'Macros', protein?: number | null, carbs?: number | null, fat?: number | null } | null, ageRange?: { __typename?: 'Range', min?: number | null, max?: number | null } | null, weightRange?: { __typename?: 'Range', min?: number | null, max?: number | null } | null }> };
 
 export type CreateRecommendationMutationVariables = Exact<{
   input: RecommendationInput;
@@ -800,14 +801,19 @@ export const GetRecommendationsDocument = gql`
     reminders
     dailyGoalMl
     sleepGoalHours
+    fitnessGoal
     ageRange {
       min
       max
     }
+    gender
+    healthConditions
     weightRange {
       min
       max
     }
+    preferredWorkoutTypes
+    dietaryRestrictions
     createdAt
     updatedAt
   }
