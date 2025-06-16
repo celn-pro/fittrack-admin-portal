@@ -6,24 +6,22 @@ import {
   useDeleteHealthTipMutation,
   GetHealthTipsDocument,
 } from '../generated/graphql';
-import DataTable from '../components/data/DataTable';
-import FormBuilder from '../components/data/FormBuilder';
-import { Button } from '@mui/material';
+import { Button, Tabs, Tab } from '@mui/material';
+import { Add, ListAlt } from '@mui/icons-material';
 import { type HealthTip, type HealthTipInput } from '../types';
-import { type FormFieldSchema } from '../components/data/FormBuilder';
+import HealthTipFormBuilder from '../components/data/HealthTipFormBuilder';
+import HealthTipTable from '../components/data/HealthTipTable';
 
-const healthTipSchema: FormFieldSchema[] = [
-  { name: 'title', label: 'Title', type: 'text', required: true },
-  { name: 'description', label: 'Description', type: 'textarea', required: true },
-  { name: 'category', label: 'Category', type: 'select', options: [{ value: 'nutrition', label: 'Nutrition' }, { value: 'exercise', label: 'Exercise' }], required: true },
-  { name: 'fitnessGoal', label: 'Fitness Goal', type: 'text' },
-];
+interface HealthTipsProps {
+  theme: 'light' | 'dark';
+}
 
-const HealthTips: React.FC = () => {
+const HealthTips: React.FC<HealthTipsProps> = ({ theme }) => {
+  const [tab, setTab] = useState(0);
   const [openForm, setOpenForm] = useState(false);
   const [editData, setEditData] = useState<HealthTip | null>(null);
 
-  const { data, loading, error } = useGetHealthTipsQuery();
+  const { data, loading } = useGetHealthTipsQuery();
   const [createHealthTip] = useCreateHealthTipMutation({
     refetchQueries: [{ query: GetHealthTipsDocument }],
   });
@@ -35,17 +33,8 @@ const HealthTips: React.FC = () => {
   });
 
   function healthTipToInput(data: HealthTip): HealthTipInput {
-    const {
-      id,
-      __typename,
-      createdAt,
-      updatedAt,
-      ...rest
-    } = data;
-    // Only include fields that exist in HealthTipInput
-    return {
-      ...rest,
-    } as HealthTipInput;
+    const { id, __typename, createdAt, updatedAt, ...rest } = data;
+    return { ...rest } as HealthTipInput;
   }
 
   const handleSubmit = async (formData: HealthTipInput) => {
@@ -57,6 +46,7 @@ const HealthTips: React.FC = () => {
       }
       setOpenForm(false);
       setEditData(null);
+      setTab(0);
     } catch (err) {
       console.error('Error submitting form:', err);
     }
@@ -65,6 +55,7 @@ const HealthTips: React.FC = () => {
   const handleEdit = (row: HealthTip) => {
     setEditData(row);
     setOpenForm(true);
+    setTab(1);
   };
 
   const handleDelete = async (id: string) => {
@@ -92,24 +83,74 @@ const HealthTips: React.FC = () => {
     },
   ];
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
-
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Health Tips</h2>
-        <Button variant="contained" onClick={() => setOpenForm(true)}>
-          Add Health Tip
-        </Button>
+    <div className="max-w-4xl mx-auto">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">Health Tips</h2>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">Manage and create health tips for your users.</p>
+        </div>
+        <Tabs
+          value={tab}
+          onChange={(_, v) => setTab(v)}
+          className="rounded-lg"
+          TabIndicatorProps={{
+            style: {
+              background: tab === 0 ? '#6366f1' : '#22c55e',
+              height: 4,
+              borderRadius: 2,
+            },
+          }}
+          sx={{
+            backgroundColor: theme === 'dark' ? '#1e293b' : '#f3f4f6',
+            '.MuiTab-root': {
+              color: theme === 'dark' ? '#cbd5e1' : '#334155',
+              fontWeight: 600,
+              fontSize: '1rem',
+              textTransform: 'none',
+              minWidth: 120,
+              '&.Mui-selected': {
+                color: theme === 'dark' ? '#fff' : '#1e293b',
+              },
+            },
+          }}
+        >
+          <Tab icon={<ListAlt />} label="List" />
+          <Tab icon={<Add />} label={editData ? "Edit" : "Create"} />
+        </Tabs>
       </div>
-      <DataTable rows={data?.getHealthTips || []} columns={columns} />
-      {openForm && (
-        <FormBuilder
-          schema={healthTipSchema}
-          onSubmit={handleSubmit}
-          defaultValues={editData ? healthTipToInput(editData) : {}}
-        />
+
+      {tab === 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 transition-colors">
+          <div className="flex justify-end mb-4">
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<Add />}
+              onClick={() => { setEditData(null); setOpenForm(true); setTab(1); }}
+              className="font-semibold"
+            >
+              New Health Tip
+            </Button>
+          </div>
+          <HealthTipTable
+            rows={data?.getHealthTips || []}
+            columns={columns}
+            loading={loading}
+            theme={theme}
+          />
+        </div>
+      )}
+
+      {tab === 1 && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 transition-colors">
+          <HealthTipFormBuilder
+            initialValues={editData ? healthTipToInput(editData) : {}}
+            onSubmit={handleSubmit}
+            onCancel={() => { setOpenForm(false); setEditData(null); setTab(0); }}
+            theme={theme}
+          />
+        </div>
       )}
     </div>
   );
