@@ -14,6 +14,9 @@ const categories = [
   { value: '', label: 'All Categories' },
   { value: 'nutrition', label: 'Nutrition' },
   { value: 'exercise', label: 'Exercise' },
+  { value: 'sleep', label: 'Sleep' },
+  { value: 'mental', label: 'Mental Health' },
+  { value: 'hydration', label: 'Hydration' },
 ];
 
 const HealthTipTable: React.FC<HealthTipTableProps> = ({ rows, columns, loading, theme }) => {

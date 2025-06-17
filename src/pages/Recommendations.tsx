@@ -215,7 +215,6 @@ const Recommendations: React.FC<RecommendationsProps> = ({ theme }) => {
             initialValues={editData ? recommendationToInput(editData) : {}}
             onSubmit={handleSubmit}
             onCancel={() => { setOpenForm(false); setEditData(null); setTab(0); }}
-            onGeminiGenerate={handleGeminiGenerate}
             theme={theme}
           />
         </div>
